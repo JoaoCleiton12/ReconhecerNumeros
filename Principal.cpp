@@ -4,32 +4,33 @@ using namespace std;
 
 int main() {
 	/*
-	números escolhidos para representar as duas saída:
-	Primeiro número = 5 (cinco)
+	nÃºmeros escolhidos para representar as duas saÃ­da:
+	Primeiro nÃºmero = 5 (cinco)
 	JOAO
 	2+1+1+1 = 5
 
-	Segundo número = 8 (oito)
+	Segundo nÃºmero = 8 (oito)
 	NUNES
 	2+1+2+1+2 = 8
 
-	Os demais números serão parte da saída desconhecida:
-	Saída desconhecida = 0,1,2,3,4,6,7,9
+	Os demais nÃºmeros serÃ£o parte da saÃ­da desconhecida:
+	SaÃ­da desconhecida = 0,1,2,3,4,6,7,9
 	*/
 
-	//se for 5 ou 8 irá entrar para verificar qual dos dois número é.
+	//se for 5 ou 8 irÃ¡ entrar para verificar qual dos dois nÃºmero Ã©.
 	if () {
-		//se for 5 irá entrar aqui
+		//se for 5 irÃ¡ entrar aqui
 		if () {
-			cout << "Primeiro número.\n";
+			cout << "Primeiro nÃºmero.\n";
 		}
-		//se não for o 5, então é o 8 
+		//se nÃ£o for o 5, entÃ£o Ã© o 8 
 		else{
-			cout << "Segundo número.\n";
+			cout << "Segundo nÃºmero.\n";
 		}
 	}
-	//se não for 5 ou 8, então é um número desconhecido.
+	//se nÃ£o for 5 ou 8, entÃ£o Ã© um nÃºmero desconhecido.
 	else () {
 		cout << "Numero nao reconhecido\n";
 	}
+//testeeeeeeeeeeeeeee
 }
