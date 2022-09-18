@@ -1,8 +1,19 @@
-#include <iostream>
+#define TAMANHO_CONJUNTO_TREINO 2
 
+#include <iostream>
+#include <math.h>
+#include <vector>
 using namespace std;
 
+//Função sigmoide para ativação dos nós
+double sigmoide(double x) {
+	return (1.0 / (1.0 + exp(-x)));
+} 
+
 int main() {
+
+	vector<pair<double, double>> conjuntoTreino;
+	conjuntoTreino.resize(TAMANHO_CONJUNTO_TREINO);
 	/*
 	números escolhidos para representar as duas saída:
 	Primeiro número = 5 (cinco)
