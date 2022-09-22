@@ -17,20 +17,47 @@ int main() {
 	Saída desconhecida = 0,1,2,3,4,6,7,9
 	*/
 
+	bool mat1[4][4];
+
+	/*
+	se todos esses bits de entrada forem iguais a 1, ou sejs true, então o numero é 5
+	formato1 do numero 5 = 1111111000101110
+	mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2] == true;
+	mat1[1][3] && mat1[2][0] && mat1[2][1] && mat1[2][3] && mat1[3][3] == false;
+
+	formato1 do numero 7 = 1111000100010001
+	se todos esses bits de entrada forem iguais a 1, ou seja, true, então o numero é 7
+	mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][3] && mat1[2][3] && mat1[3][3])  == true
+
+	mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][0] && mat1[2][1] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2] == false;
+	*/
+
+	//a leitura dos valores em binário esta sendo feita de maneira manual por enquanto
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 4; j++) {
+			cin >> mat1[i][j];
+		}
+	}
+
 	//se for 5 ou 7 irá entrar para verificar qual dos dois número é.
-	if () {
+	if (((((mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2]) == true) && 
+		((mat1[1][3] && mat1[2][0] && mat1[2][1] && mat1[2][3] && mat1[3][3]) == false)) ||
+		(((mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][3] && mat1[2][3] && mat1[3][3]) == true) && 
+		((mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][0] && mat1[2][1] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2]) == false) ))) {
 		//se for 5 irá entrar aqui
-		if () {
-			cout << "Primeiro número.\n";
+		if ((((mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2]) == true) &&
+			((mat1[1][3] && mat1[2][0] && mat1[2][1] && mat1[2][3] && mat1[3][3]) == false))) {
+			cout << "Primeiro numero.\n";
 		}
 		//se não for o 5, então é o 7 
 		else{
 			cout << "Segundo número.\n";
 		}
 	}
+	/*
 	//se não for 5 ou 7, então é um número desconhecido.
 	else () {
 		cout << "Numero nao reconhecido\n";
 	}
-
+	*/
 }
