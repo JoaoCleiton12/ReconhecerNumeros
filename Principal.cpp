@@ -66,8 +66,16 @@ int main() {
     	inicializarPesos(pesos_saida[i], TAM_PESOS_SAIDA);
 	}
 	double conjunto_treinamento[QTD_AMOSTRAS][NEURONIOS_CAMADA_ENTRADA] {
-		{1,1,1,1,1,1,1,0,0,0,1,0,1,1,1,0},
-		{1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,1}
+		{0,1,1,0,1,0,0,1,1,0,0,1,0,1,1,0}, //0
+		{0,0,1,0,0,1,1,0,0,0,1,0,0,1,1,1}, //1
+		{0,1,1,0,0,0,0,1,0,1,1,1,0,1,1,1}, //2
+		{0,1,1,1,0,0,1,1,0,0,0,1,0,1,1,0}, //3
+		{1,0,1,0,1,1,1,0,0,0,1,0,0,0,1,0}, //4
+		{1,1,1,1,1,1,1,0,0,0,1,0,1,1,1,0}, //5
+		{1,1,1,0,1,0,0,0,1,1,1,0,1,1,1,0}, //6
+		{1,1,1,1,0,0,0,1,0,0,0,1,0,0,0,1}, //7
+		{0,1,1,0,0,1,1,0,0,1,1,0,0,1,1,0}, //8
+		{0,1,1,0,0,1,1,0,0,0,1,0,0,1,1,0}  //9
 	};
 	//Conjunto de saídas desejáveis
 	double saidas_desejaveis[QTD_AMOSTRAS][NEURONIOS_CAMADA_SAIDA] {
@@ -108,6 +116,14 @@ int main() {
 
 	Os demais números serão parte da saída desconhecida:
 	Saída desconhecida = 0,1,2,3,4,6,7,9
+	0 = 0110100110010110
+	1 = 0010011000100111
+	2 = 0110000101110111
+	3 = 0111001100010110
+	4 = 1010111000100010
+	6 = 1110100011101110
+	8 = 0110011001100110
+	9 = 0110011000100110
 	*/	
 
 	bool mat1[4][4];
@@ -123,6 +139,7 @@ int main() {
 	mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][3] && mat1[2][3] && mat1[3][3])  == true
 
 	mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][0] && mat1[2][1] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2] == false;
+
 	*/
 
 	//a leitura dos valores em binário esta sendo feita de maneira manual por enquanto
