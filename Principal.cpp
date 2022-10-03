@@ -8,7 +8,7 @@
 #define TOLERANCIA 0.1
 #define EPOCAS 100
 #include <iostream>
-#include <math.h>
+#include <cmath>
 using namespace std;
 
 enum funcoes {SIGMOIDE,LINEAR,TANGENTE_HIPERBOLICA};
@@ -22,21 +22,40 @@ double calcularNets(double peso[],double conjunto_dados[], double vies, int qtdD
 }
 double funcaoTransferencia(int funcao, double x) {
 	switch (funcao) {
-	case SIGMOIDE: return (1.0 / (1.0 + exp(-x))); break;
-	default: break;
-	}
-}
-
-double derivadaFuncaoTransferencia(int funcao, double i) {
-	switch(funcao) {
-		case LINEAR:
-			if(i >= 0) return 1.0;
-			else return 0.0; 
-			break;
-		case SIGMOIDE: return i * (1 - i); break;
-		case TANGENTE_HIPERBOLICA: return 1 - pow(i,2); break;
+		case LINEAR: return x; break;
+		case SIGMOIDE: return (1.0 / (1.0 + exp(-x))); break;
+		case TANGENTE_HIPERBOLICA: return (1.0 - exp(-2 * x) / (1.0 + exp(-2 * x))); break;
 		default: break;
 	}
+	return 0.0;
+}
+
+double derivadaFuncaoTransferencia(int funcao, double y) {
+	switch(funcao) {
+		case LINEAR:
+			return 1.0;
+			break;
+		case SIGMOIDE: return y * (1 - y); break;
+		case TANGENTE_HIPERBOLICA: return 1 - pow(y,2); break;
+		default: break;
+	}
+	return 0.0;
+}
+
+double calcularErroSaida(int funcao, double d, double y) {
+	double erro = d - y;
+	double derivada = derivadaFuncaoTransferencia(funcao,y);
+	return erro * derivada;
+}
+
+double calcularErroOculta(int funcao, double y, double erroSaida[], int indice, 
+double pesoSaida[][TAM_PESOS_SAIDA]) {
+	double derivada = derivadaFuncaoTransferencia(funcao,y);
+	double somaErro = 0;
+	for(int i = 0; i < NEURONIOS_CAMADA_SAIDA; i++) {
+		somaErro += erroSaida[i] * pesoSaida[i][indice + 1];
+	}
+	return derivada * somaErro;
 }
 
 void inicializarPesos(double p[], int tamanho_pesos) {
@@ -47,16 +66,17 @@ void inicializarPesos(double p[], int tamanho_pesos) {
 
 int main() {
 	srand(time(NULL));
-	int epocasTotais = 0;
 	double vies_oculta[NEURONIOS_CAMADA_OCULTA] = {1.0};
 	double vies_saida[NEURONIOS_CAMADA_SAIDA] = {1.0};
-	double nets_oculta[NEURONIOS_CAMADA_OCULTA]; //Nets da camada oculta
-	double nets_saida[NEURONIOS_CAMADA_SAIDA]; //Nets da camada de saida
-	double pesos_oculta[NEURONIOS_CAMADA_OCULTA][TAM_PESOS_OCULTA]; //pesos da camada oculta
-	double pesos_saida[NEURONIOS_CAMADA_SAIDA][TAM_PESOS_SAIDA]; //pesos da camada de saída
-	double saidas_oculta[NEURONIOS_CAMADA_OCULTA]; //Saídas dos neurônios da camada oculta
-	double saidas_saida[NEURONIOS_CAMADA_SAIDA]; //Saídas dos neurônios da camada de saída
-
+	double nets_oculta[NEURONIOS_CAMADA_OCULTA]; 
+	double nets_saida[NEURONIOS_CAMADA_SAIDA]; 
+	double pesos_oculta[NEURONIOS_CAMADA_OCULTA][TAM_PESOS_OCULTA]; 
+	double pesos_saida[NEURONIOS_CAMADA_SAIDA][TAM_PESOS_SAIDA]; 
+	double saidas_oculta[NEURONIOS_CAMADA_OCULTA]; 
+	double saidas_saida[NEURONIOS_CAMADA_SAIDA]; 
+	double erroOculta[NEURONIOS_CAMADA_OCULTA];
+	double erroSaida[NEURONIOS_CAMADA_SAIDA];
+	double erroRede;
 	//Inicializar pesos da camada oculta
 	for(int i = 0; i < NEURONIOS_CAMADA_OCULTA; i++){
     	inicializarPesos(pesos_oculta[i], TAM_PESOS_OCULTA);
@@ -79,12 +99,22 @@ int main() {
 	};
 	//Conjunto de saídas desejáveis
 	double saidas_desejaveis[QTD_AMOSTRAS][NEURONIOS_CAMADA_SAIDA] {
+		{0,0,1}, //Quando não é 5 nem 7
+		{0,0,1}, 
+		{0,0,1},
+		{0,0,1}, 
+		{0,0,1}, 
 		{1,0,0}, //Quando é 5
+		{0,0,1}, 
 		{0,1,0}, //Quando é 7
-		{0,0,1} //Quando não é 5 nem 7
+		{0,0,1}, 
+		{0,0,1} 
+		
 	};
 	//Iterações
-	for(int i = 0; i < EPOCAS; i++) {
+	int epocasTotais = 0;
+	do {
+		erroRede = 0;
 		//Início da fase forward
 		//Para cada amostra de treinamento, fazer:
 		for(int j = 0; j < QTD_AMOSTRAS; j++) {
@@ -102,8 +132,47 @@ int main() {
 				//Aplicação da função de transferência nos neurônios da camada de saída
 				saidas_saida[k] = funcaoTransferencia(SIGMOIDE,nets_saida[k]);
 			}
+
+			//Início da fase backward
+			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
+				//Calcular os erros para os neurônios da camada de saída
+				erroSaida[k] = calcularErroSaida(SIGMOIDE,saidas_desejaveis[j][k],saidas_saida[k]);
+			}
+
+			for(int k = 0; k < NEURONIOS_CAMADA_OCULTA; k++) {
+				//Calcular os erros nos neurônios da camada oculta
+				erroOculta[k] = calcularErroOculta(SIGMOIDE,saidas_oculta[k],erroSaida,k,pesos_saida);
+
+			}
+			//Ajuste de pesos da camada de saída
+			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
+				//Atualizando o viés da camada de saída
+				pesos_saida[k][0] += TAXA_APRENDIZAGEM * (erroSaida[k] * vies_saida[k]);
+				//Atualizando os pesos
+				for(int l = 1; l < TAM_PESOS_SAIDA; l++) {
+					pesos_saida[k][l] += TAXA_APRENDIZAGEM * (erroSaida[k] * saidas_oculta[l-1]);
+				}
+			}
+			//Ajuste de pesos da camada oculta
+			for(int k = 0; k < NEURONIOS_CAMADA_OCULTA; k++) {
+				//Atualizando o viés da camada oculta
+				pesos_oculta[k][0] += TAXA_APRENDIZAGEM * (erroOculta[k] * vies_oculta[k]);
+				//Atualizando os pesos
+				for(int l = 0; l < TAM_PESOS_OCULTA; l++) {
+					pesos_oculta[k][l] += TAXA_APRENDIZAGEM * (erroOculta[k] * conjunto_treinamento[k][l-1]);
+				}
+			}
+			//Calcular erro de rede 
+			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
+				erroRede += pow(erroSaida[k],2) / 2; 
+			}
 		}
-	}
+		epocasTotais++;
+		cout << epocasTotais << " - " << erroRede << endl;
+	} while (epocasTotais < EPOCAS || erroRede > TOLERANCIA);
+	cout << "Rede treinada com " << epocasTotais << " épocas" << endl;
+	cout << "Erro de rede: " << erroRede << endl;
+	//cout << "Erro de rede: " << erroRede << endl;
 	/*
 	números escolhidos para representar as duas saída:
 	Primeiro número = 5 (cinco)
@@ -121,56 +190,12 @@ int main() {
 	2 = 0110000101110111
 	3 = 0111001100010110
 	4 = 1010111000100010
+	5 = 1111111000101110
 	6 = 1110100011101110
+	1111000100010001
 	8 = 0110011001100110
 	9 = 0110011000100110
 	*/	
 
-	bool mat1[4][4];
-	
-	/*
-	se todos esses bits de entrada forem iguais a 1, ou sejs true, então o numero é 5
-	formato1 do numero 5 = 1111111000101110
-	mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2] == true;
-	mat1[1][3] && mat1[2][0] && mat1[2][1] && mat1[2][3] && mat1[3][3] == false;
-
-	formato1 do numero 7 = 1111000100010001
-	se todos esses bits de entrada forem iguais a 1, ou seja, true, então o numero é 7
-	mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][3] && mat1[2][3] && mat1[3][3])  == true
-
-	mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][0] && mat1[2][1] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2] == false;
-
-	*/
-
-	//a leitura dos valores em binário esta sendo feita de maneira manual por enquanto
-	for (int i = 0; i < 4; i++) {
-		for (int j = 0; j < 4; j++) {
-			cin >> mat1[i][j];
-		}
-	}
-
-	//se for 5 ou 7 irá entrar para verificar qual dos dois número é.
-	if (((((mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2]) == true) && 
-		((mat1[1][3] && mat1[2][0] && mat1[2][1] && mat1[2][3] && mat1[3][3]) == false)) ||
-		(((mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][3] && mat1[2][3] && mat1[3][3]) == true) && 
-		((mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][0] && mat1[2][1] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2]) == false) ))) {
-		//se for 5 irá entrar aqui
-		if ((((mat1[0][0] && mat1[0][1] && mat1[0][2] && mat1[0][3] && mat1[1][0] && mat1[1][1] && mat1[1][2] && mat1[2][2] && mat1[3][0] && mat1[3][1] && mat1[3][2]) == true) &&
-			((mat1[1][3] && mat1[2][0] && mat1[2][1] && mat1[2][3] && mat1[3][3]) == false))) {
-			cout << "Primeiro numero.\n";
-		}
-		//se não for o 5, então é o 7 
-		else{
-			cout << "Segundo número.\n";
-		}
-	}
-	/*
-	//se não for 5 ou 7, então é um número desconhecido.
-	else () {
-		cout << "Numero nao reconhecido\n";
-<<<<<<< HEAD
-	}
-}
-	*/
 }
 
