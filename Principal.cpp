@@ -24,7 +24,7 @@ double funcaoTransferencia(int funcao, double x) {
 	switch (funcao) {
 		case LINEAR: return x; break;
 		case SIGMOIDE: return (1.0 / (1.0 + exp(-x))); break;
-		case TANGENTE_HIPERBOLICA: return (1.0 - exp(-2 * x) / (1.0 + exp(-2 * x))); break;
+		case TANGENTE_HIPERBOLICA: return (1.0 - exp(-2 * x)) / (1.0 + exp(-2 * x)); break;
 		default: break;
 	}
 	return 0.0;
@@ -32,9 +32,7 @@ double funcaoTransferencia(int funcao, double x) {
 
 double derivadaFuncaoTransferencia(int funcao, double y) {
 	switch(funcao) {
-		case LINEAR:
-			return 1.0;
-			break;
+		case LINEAR: return 1.0; break;
 		case SIGMOIDE: return y * (1 - y); break;
 		case TANGENTE_HIPERBOLICA: return 1 - pow(y,2); break;
 		default: break;
@@ -48,7 +46,7 @@ double calcularErroSaida(int funcao, double d, double y) {
 	return erro * derivada;
 }
 
-double calcularErroOculta(int funcao, double y, double erroSaida[], int indice, 
+double calcularErroOculta(int funcao, double y, double erroSaida[], int indice,
 double pesoSaida[][TAM_PESOS_SAIDA]) {
 	double derivada = derivadaFuncaoTransferencia(funcao,y);
 	double somaErro = 0;
@@ -137,6 +135,8 @@ int main() {
 			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
 				//Calcular os erros para os neurônios da camada de saída
 				erroSaida[k] = calcularErroSaida(SIGMOIDE,saidas_desejaveis[j][k],saidas_saida[k]);
+				//Calcular erro da rede
+				erroRede += pow(erroSaida[k],2) / 2.0;
 			}
 
 			for(int k = 0; k < NEURONIOS_CAMADA_OCULTA; k++) {
@@ -162,16 +162,12 @@ int main() {
 					pesos_oculta[k][l] += TAXA_APRENDIZAGEM * (erroOculta[k] * conjunto_treinamento[k][l-1]);
 				}
 			}
-			//Calcular erro de rede 
-			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
-				erroRede += pow(erroSaida[k],2) / 2; 
-			}
 		}
 		epocasTotais++;
 		cout << epocasTotais << " - " << erroRede << endl;
-	} while (epocasTotais < EPOCAS || erroRede > TOLERANCIA);
+	} while (epocasTotais < EPOCAS && erroRede > TOLERANCIA);
 	cout << "Rede treinada com " << epocasTotais << " épocas" << endl;
-	cout << "Erro de rede: " << erroRede << endl;
+	cout << "Erro da rede: " << erroRede << endl;
 	//cout << "Erro de rede: " << erroRede << endl;
 	/*
 	números escolhidos para representar as duas saída:
@@ -192,7 +188,7 @@ int main() {
 	4 = 1010111000100010
 	5 = 1111111000101110
 	6 = 1110100011101110
-	1111000100010001
+	7 = 1111000100010001
 	8 = 0110011001100110
 	9 = 0110011000100110
 	*/	
