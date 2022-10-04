@@ -4,11 +4,12 @@
 #define QTD_AMOSTRAS 10
 #define TAM_PESOS_OCULTA QTD_AMOSTRAS + 1
 #define TAM_PESOS_SAIDA NEURONIOS_CAMADA_OCULTA + 1
-#define TAXA_APRENDIZAGEM 0.4
+#define TAXA_APRENDIZAGEM 0.1
 #define TOLERANCIA 0.1
 #define EPOCAS 100
 #include <iostream>
 #include <cmath>
+#include <string>
 using namespace std;
 
 enum funcoes {SIGMOIDE,LINEAR,TANGENTE_HIPERBOLICA};
@@ -21,10 +22,14 @@ double calcularNets(double peso[],double conjunto_dados[], double vies, int qtdD
 	return net;
 }
 double funcaoTransferencia(int funcao, double x) {
+	double e;
 	switch (funcao) {
 		case LINEAR: return x; break;
 		case SIGMOIDE: return (1.0 / (1.0 + exp(-x))); break;
-		case TANGENTE_HIPERBOLICA: return (1.0 - exp(-2 * x)) / (1.0 + exp(-2 * x)); break;
+		case TANGENTE_HIPERBOLICA: 
+			e = exp(2*x); 
+			return (2 - 1.0) / (2 + 1.0); 
+			break;
 		default: break;
 	}
 	return 0.0;
@@ -107,7 +112,6 @@ int main() {
 		{0,1,0}, //Quando é 7
 		{0,0,1}, 
 		{0,0,1} 
-		
 	};
 	//Iterações
 	int epocasTotais = 0;
@@ -136,9 +140,9 @@ int main() {
 				//Calcular os erros para os neurônios da camada de saída
 				erroSaida[k] = calcularErroSaida(SIGMOIDE,saidas_desejaveis[j][k],saidas_saida[k]);
 				//Calcular erro da rede
-				erroRede += pow(erroSaida[k],2) / 2.0;
+				erroRede += erroSaida[k];
 			}
-
+			erroRede = pow(erroRede,2) / 2;
 			for(int k = 0; k < NEURONIOS_CAMADA_OCULTA; k++) {
 				//Calcular os erros nos neurônios da camada oculta
 				erroOculta[k] = calcularErroOculta(SIGMOIDE,saidas_oculta[k],erroSaida,k,pesos_saida);
@@ -167,7 +171,38 @@ int main() {
 		cout << epocasTotais << " - " << erroRede << endl;
 	} while (epocasTotais < EPOCAS && erroRede > TOLERANCIA);
 	cout << "Rede treinada com " << epocasTotais << " épocas" << endl;
-	cout << "Erro da rede: " << erroRede << endl;
+	cout << "Erro da rede: " << erroRede << endl << endl;
+	cout << "FASE DE TESTES" << endl;
+	for(int j = 0; j < QTD_AMOSTRAS; j++) {
+		for(int k = 0; k < NEURONIOS_CAMADA_OCULTA; k++) {
+				//Cálculo dos nets da camada oculta
+				nets_oculta[k] = calcularNets(pesos_oculta[k], conjunto_treinamento[j],vies_oculta[k],
+				NEURONIOS_CAMADA_ENTRADA);
+				//Aplicação da função de transferência nos neurônios da camada oculta
+				saidas_oculta[k] = funcaoTransferencia(SIGMOIDE,nets_oculta[k]);
+			}
+			cout << "SAÍDA: ";
+			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
+				//Cálculo dos nets da camada de saída
+				nets_saida[k] = calcularNets(pesos_saida[k],saidas_oculta,vies_saida[k],NEURONIOS_CAMADA_OCULTA);
+				//Aplicação da função de transferência nos neurônios da camada de saída
+				saidas_saida[k] = funcaoTransferencia(SIGMOIDE,nets_saida[k]);
+				cout << saidas_saida[k] << ',';
+			}
+			/*cout << endl;
+			for(int k = 0; k < NEURONIOS_CAMADA_SAIDA; k++) {
+				cout << saidas_desejaveis[j][k] << ',';
+				if(k == 0 && saidas_desejaveis[j][k] > 0.5) {
+					cout << "O número é 5";
+				} else if(k == 1 && saidas_desejaveis[j][k] > 0.5) {
+					cout << "O número é 7";
+				} else {
+					cout << "Não é nenhum desses números";
+				}
+				
+			}*/
+			cout << endl;
+	}
 	//cout << "Erro de rede: " << erroRede << endl;
 	/*
 	números escolhidos para representar as duas saída:
