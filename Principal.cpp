@@ -205,9 +205,9 @@ int main()
 					pesos_oculta[k][l] += TAXA_APRENDIZAGEM * (erroOculta[k] * conjunto_treinamento[k][l - 1]);
 				}
 			}
+			epocasTotais++;
 			cout << epocasTotais << " - " << erroRede << endl;
 		} while (epocasTotais < EPOCAS && erroRede > TOLERANCIA);
-		epocasTotais++;
 	}
 	cout << "Rede treinada com " << epocasTotais << " épocas" << endl;
 	cout << "Erro da rede: " << erroRede << endl
