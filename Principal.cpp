@@ -147,6 +147,7 @@ int main()
 	int epocasTotais = 0;
 	for (int j = 0; j < QTD_AMOSTRAS; j++)
 	{
+		cout << j+1 << "º amostra" << endl;
 		do
 		{
 			erroRede = 0;
