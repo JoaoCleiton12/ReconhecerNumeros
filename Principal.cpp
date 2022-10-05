@@ -209,9 +209,9 @@ int main()
 			cout << epocasTotais << " - " << erroRede << endl;
 		} while (epocasTotais < EPOCAS && erroRede > TOLERANCIA);
 	}
-	cout << "Rede treinada com " << epocasTotais << " épocas" << endl;
-	cout << "Erro da rede: " << erroRede << endl
-		 << endl;
+	/*cout << "Rede treinada com " << epocasTotais << " épocas" << endl;
+	/*cout << "Erro da rede: " << erroRede << endl
+		 << endl;*/
 	cout << "FASE DE TESTES" << endl;
 	for (int j = 0; j < QTD_AMOSTRAS; j++)
 	{
